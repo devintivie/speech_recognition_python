@@ -8,85 +8,80 @@ class lstm_layer():
         self.input_length = input_length
         self.hidden_length = hidden_length
         self.output_length = output_length
-        self.direction = direction
+        # self.direction = direction
 
-        self.Wxi_fw = neural_weight(hidden_length, input_length)
-        self.Whi_fw = neural_weight(hidden_length, hidden_length)
-        self.Wci_fw = neural_weight(hidden_length, hidden_length)
-        self.Bi_fw = neural_weight(hidden_length, 1)
-
-        self.Wxf_fw = neural_weight(hidden_length, input_length)
-        self.Whf_fw = neural_weight(hidden_length, hidden_length)
-        self.Wcf_fw = neural_weight(hidden_length, hidden_length)
-        self.Bf_fw = neural_weight(hidden_length, 1)
-
-        self.Wxc_fw = neural_weight(hidden_length, input_length)
-        self.Whc_fw = neural_weight(hidden_length, hidden_length)
-        self.Bc_fw = neural_weight(hidden_length, 1)
-
-        self.Wxo_fw = neural_weight(hidden_length, input_length)
-        self.Who_fw = neural_weight(hidden_length, hidden_length)
-        self.Bo_fw = neural_weight(hidden_length, 1)
-
-        self.Wy_fw = neural_weight(output_length, hidden_length)
-        self.By = neural_weight(output_length, 1)
+        self.init_forward_weights()
 
         if direction == 'bidirection':
-            self.Wxi_rv = neural_weight(hidden_length, input_length)
-            self.Whi_rv = neural_weight(hidden_length, hidden_length)
-            self.Wci_rv = neural_weight(hidden_length, hidden_length)
-            self.Bi_rv = neural_weight(hidden_length, 1)
+            self.bidirectional = True
+            self.init_reverse_weights()
+        else:
+            self.bidirectional = False
+            
+    def init_forward_weights(self):
+        self.Wxi_fw = neural_weight(self.hidden_length, self.input_length)
+        self.Whi_fw = neural_weight(self.hidden_length, self.hidden_length)
+        self.Wci_fw = neural_weight(self.hidden_length, self.hidden_length)
+        self.Bi_fw = neural_weight(self.hidden_length, 1, 'zero')
 
-            self.Wxf_rv = neural_weight(hidden_length, input_length)
-            self.Whf_rv = neural_weight(hidden_length, hidden_length)
-            self.Wcf_rv = neural_weight(hidden_length, hidden_length)
-            self.Bf_rv = neural_weight(hidden_length, 1)
+        self.Wxf_fw = neural_weight(self.hidden_length, self.input_length)
+        self.Whf_fw = neural_weight(self.hidden_length, self.hidden_length)
+        self.Wcf_fw = neural_weight(self.hidden_length, self.hidden_length)
+        self.Bf_fw = neural_weight(self.hidden_length, 1, 'zero')
 
-            self.Wxc_rv = neural_weight(hidden_length, input_length)
-            self.Whc_rv = neural_weight(hidden_length, hidden_length)
-            self.Bc_rv = neural_weight(hidden_length, 1)
+        self.Wxc_fw = neural_weight(self.hidden_length, self.input_length)
+        self.Whc_fw = neural_weight(self.hidden_length, self.hidden_length)
+        self.Bc_fw = neural_weight(self.hidden_length, 1, 'zero')
 
-            self.Wxo_rv = neural_weight(hidden_length, input_length)
-            self.Who_rv = neural_weight(hidden_length, hidden_length)
-            self.Bo_rv = neural_weight(hidden_length, 1)
+        self.Wxo_fw = neural_weight(self.hidden_length, self.input_length)
+        self.Who_fw = neural_weight(self.hidden_length, self.hidden_length)
+        self.Bo_fw = neural_weight(self.hidden_length, 1, 'zero')
 
-            self.Wy_rv = neural_weight(output_length, hidden_length)
+        self.Wy_fw = neural_weight(self.output_length, self.hidden_length)
+        self.By = neural_weight(self.output_length, 1, 'zero')
+
+    def init_reverse_weights(self):
+        self.Wxi_rv = neural_weight(self.hidden_length, self.input_length)
+        self.Whi_rv = neural_weight(self.hidden_length, self.hidden_length)
+        self.Wci_rv = neural_weight(self.hidden_length, self.hidden_length)
+        self.Bi_rv = neural_weight(self.hidden_length, 1)
+
+        self.Wxf_rv = neural_weight(self.hidden_length, self.input_length)
+        self.Whf_rv = neural_weight(self.hidden_length, self.hidden_length)
+        self.Wcf_rv = neural_weight(self.hidden_length, self.hidden_length)
+        self.Bf_rv = neural_weight(self.hidden_length, 1)
+
+        self.Wxc_rv = neural_weight(self.hidden_length, self.input_length)
+        self.Whc_rv = neural_weight(self.hidden_length, self.hidden_length)
+        self.Bc_rv = neural_weight(self.hidden_length, 1)
+
+        self.Wxo_rv = neural_weight(self.hidden_length, self.input_length)
+        self.Who_rv = neural_weight(self.hidden_length, self.hidden_length)
+        self.Bo_rv = neural_weight(self.hidden_length, 1)
+
+        self.Wy_rv = neural_weight(self.output_length, self.hidden_length)
 
     def layer_forward(self, activation):
-        # self.all_activations_fws = []
-        # self.ai_fw = []
-        # self.af_fw = []
-        # self.ac_fw = []
-        # self.ao_fw = []
-
-        # self.all_c_fws = []  #all ct forward status
-        # self.all_c_prev_fws = []     #all ct-1 forward status
-
-        # self.all_h_fws = []    #all ht forward activations
-        # self.all_h_prev_fws = []    #all ht-1 forward activations 
-
+        self.layer_input = activation.T
         self.forward_activation = activation
         self.compute_forward_sequence()
 
-        if self.direction == 'bidirection':
-            # self.all_activations_rvs = []
-            
-            # self.all_c_rvs = []  #all ct reverse status
-            # self.all_c_prev_rvs = []     #all ct-1 reverse status
-
-            # self.all_h_rvs = []
-            # self.all_h_prev_rvs = []
-            # self.ai_rv = []
-            # self.af_rv = []
-            # self.ac_rv = []
-            # self.ao_rv = []
-
+        if self.bidirectional:
             self.reverse_activation = np.flip(activation)
             self.compute_reverse_sequence()
 
-        
-        
         return self.compute_output()
+
+    def layer_backprop(self, d_activation):
+        num_samples = d_activation.shape[1]
+        self.averager = 1.0/num_samples
+        dL_dht = self.calc_dY(d_activation)
+        dL_dao = self.calc_dO(dL_dht)
+        (dL_dct, dL_dac) = self.calc_dC(dL_dht)
+        dL_daf = self.calc_dF(dL_dct)
+        dL_dai = self.calc_dI(dL_dct)
+        dL_dzt = self.calc_dInputs(dL_daf, dL_dai, dL_dao, dL_dac)
+        return dL_dzt
 
     def compute_forward_sequence(self):
         cell = np.zeros((self.hidden_length, 1))
@@ -133,9 +128,6 @@ class lstm_layer():
 
         self.h_fw = np.concatenate(hiddens[1:], axis=1)    #all ht forward activations
         self.h_fw_prev = np.concatenate(hiddens[:-1], axis=1)    #all ht-1 forward activations 
-
-        # self.all_activations_fws.append(self.all_h_fws[-1]) #get first = last = only, will change when multiple layers are used
-        # self.current_activation_fw = self.all_h_fws[-1]
 
     def compute_reverse_sequence(self):
         cell = np.zeros((self.hidden_length, 1))
@@ -186,17 +178,263 @@ class lstm_layer():
         self.h_rv = np.concatenate(hiddens[1:], axis=1)    #all ht forward activations
         self.h_rv_prev = np.concatenate(hiddens[:-1], axis=1)    #all ht-1 forward activations 
 
-        # self.all_activations_rvs.append(self.all_h_rvs[-1]) #get first = last = only, will change when multiple layers are used
-        # self.current_activation_rv = self.h_rvs
-
-
-
     def compute_output(self):
         self.output = np.dot(self.Wy_fw.weight, self.h_fw) + self.By.weight
-        if self.direction == 'bidirection':
+        if self.bidirectional:
             reverse = np.dot(self.Wy_rv.weight, self.h_rv)
             self.output += reverse
         
+        self.output = softmax(self.output)
         return self.output
 
+    def calc_dY(self, d_activation):
+        self.Wy_fw.delta = self.averager * np.dot(d_activation, self.h_fw.T)
+        self.By.delta = np.atleast_2d(np.average(d_activation, 1)).T
+        dL_dht_fw = np.dot(self.Wy_fw.weight.T, d_activation)
 
+        if self.bidirectional:
+            self.Wy_rv.delta = self.averager * np.dot(d_activation, self.h_rv.T)
+            dL_dht_rv = np.dot(self.Wy_rv.weight.T, d_activation)
+        else:
+            dL_dht_rv = None
+        return (dL_dht_fw, dL_dht_rv)
+
+    def calc_dO(self, dL_dht):
+        dL_dht_fw = dL_dht[0]
+        dL_dht_rv = dL_dht[1]
+
+        dL_dot_fw = dL_dht_fw * np.tanh(self.c_fw)
+        dL_dao_fw = dL_dot_fw * sigmoid_prime(self.ao_fw)
+
+        self.Wxo_fw.delta = self.averager * np.dot(dL_dao_fw, self.layer_input.T)
+        self.Who_fw.delta = self.averager * np.dot(dL_dao_fw, self.h_fw_prev.T)
+        self.Bo_fw.delta = np.atleast_2d(np.average(dL_dot_fw, axis=1)).T
+
+        if self.bidirectional:
+            dL_dot_rv = dL_dht_rv * np.tanh(self.c_rv)
+            dL_dao_rv = dL_dot_rv * sigmoid_prime(self.ao_rv)
+
+            self.Wxo_rv.delta = self.averager * np.dot(dL_dao_rv, self.layer_input.T)
+            self.Who_rv.delta = self.averager * np.dot(dL_dao_rv, self.h_rv_prev.T)
+            self.Bo_rv.delta = np.atleast_2d(np.average(dL_dot_rv, axis=1)).T
+        else:
+            dL_dao_rv = None
+        return (dL_dao_fw, dL_dao_rv)
+
+    def calc_dC(self, dL_dht):
+        dL_dht_fw = dL_dht[0]
+        dL_dht_rv = dL_dht[1]
+
+        #dL_dc hat
+        dL_dct_fw = dL_dht_fw * sigmoid(self.ao_fw) * (1.0 - np.power( np.tanh(self.c_fw), 2 ))
+        dL_dcet_fw = dL_dct_fw * sigmoid(self.ai_fw)
+        dL_dac_fw = dL_dcet_fw * (1.0 - np.power( np.tanh(self.ac_fw), 2 ))
+
+        self.Wxc_fw.delta = self.averager * np.dot(dL_dac_fw, self.layer_input.T)
+        self.Whc_fw.delta = self.averager * np.dot(dL_dac_fw, self.h_fw_prev.T)
+        self.Bc_fw.delta = np.atleast_2d(np.average(dL_dac_fw, axis=1)).T
+
+        if self.bidirectional:
+            dL_dct_rv = dL_dht_rv * sigmoid(self.ao_rv) * (1.0 - np.power( np.tanh(self.c_rv), 2 ))
+            dL_dcet_rv = dL_dct_rv * sigmoid(self.ai_rv)
+            dL_dac_rv = dL_dcet_rv * (1.0 - np.power( np.tanh(self.ac_rv), 2 ))
+
+            self.Wxc_rv.delta = self.averager * np.dot(dL_dac_rv, self.layer_input.T)
+            self.Whc_rv.delta = self.averager * np.dot(dL_dac_rv, self.h_rv_prev.T)
+            self.Bc_rv.delta = np.atleast_2d(np.average(dL_dac_rv, axis=1)).T
+        else:
+            dL_dct_rv = None
+            dL_dac_rv = None
+
+        dL_dct = (dL_dct_fw, dL_dct_rv)    
+        dL_dac = (dL_dac_fw, dL_dac_rv)
+        return (dL_dct, dL_dac)
+
+    def calc_dF(self, dL_dct):
+        dL_dct_fw = dL_dct[0]
+        dL_dct_rv = dL_dct[1]
+
+        dL_dft_fw = dL_dct_fw * self.c_fw_prev
+        dL_daf_fw = dL_dft_fw * sigmoid_prime(self.af_fw)
+
+        self.Wxf_fw.delta = np.dot(dL_daf_fw, self.layer_input.T)
+        self.Whf_fw.delta = np.dot(dL_daf_fw, self.h_fw.T)
+        self.Wcf_fw.delta = np.dot(dL_daf_fw, self.c_fw.T)
+        self.Bf_fw.delta = np.atleast_2d(np.average(dL_daf_fw, axis=1)).T
+
+        if self.bidirectional:
+            dL_dft_rv = dL_dct_rv * self.c_rv_prev
+            dL_daf_rv = dL_dft_rv * sigmoid_prime(self.af_rv)
+
+            self.Wxf_rv.delta = np.dot(dL_daf_rv, self.layer_input.T)
+            self.Whf_rv.delta = np.dot(dL_daf_rv, self.h_rv.T)
+            self.Wcf_rv.delta = np.dot(dL_daf_rv, self.c_rv.T)
+            self.Bf_rv.delta = np.atleast_2d(np.average(dL_daf_rv, axis=1)).T
+        else:
+            dL_daf_rv = None
+        
+        return (dL_daf_fw, dL_daf_rv)
+
+    def calc_dI(self, dL_dct):
+        dL_dct_fw = dL_dct[0]
+        dL_dct_rv = dL_dct[1]
+
+        dL_dit_fw = dL_dct_fw * np.tanh(self.ac_fw)
+        dL_dai_fw = dL_dit_fw * sigmoid_prime(self.ai_fw)
+
+        self.Wxi_fw.delta = np.dot(dL_dai_fw, self.layer_input.T)
+        self.Whi_fw.delta = np.dot(dL_dai_fw, self.h_fw.T)
+        self.Wci_fw.delta = np.dot(dL_dai_fw, self.c_fw.T)
+        self.Bi_fw.delta = np.atleast_2d(np.average(dL_dai_fw, axis=1)).T
+
+        if self.bidirectional:
+            dL_dit_rv = dL_dct_rv * np.tanh(self.ac_rv)
+            dL_dai_rv = dL_dit_rv * sigmoid_prime(self.ai_rv)
+
+            self.Wxi_rv.delta = np.dot(dL_dai_rv, self.layer_input.T)
+            self.Whi_rv.delta = np.dot(dL_dai_rv, self.h_rv.T)
+            self.Wci_rv.delta = np.dot(dL_dai_rv, self.c_rv.T)
+            self.Bi_rv.delta = np.atleast_2d(np.average(dL_dai_rv, axis=1)).T
+        else:
+            dL_dai_rv = None
+        
+        return (dL_dai_fw, dL_dai_rv)
+
+    def calc_dInputs(self, dL_daf, dL_dai, dL_dao, dL_dac):
+        dL_daf_fw = dL_daf[0]
+        dL_daf_rv = dL_daf[1]
+
+        dL_dai_fw = dL_dai[0]
+        dL_dai_rv = dL_dai[1]
+
+        dL_dao_fw = dL_dao[0]
+        dL_dao_rv = dL_dao[1]
+
+        dL_dac_fw = dL_dac[0]
+        dL_dac_rv = dL_dac[1]
+
+        dl_dzt = np.dot(self.Wxf_fw.weight.T, dL_daf_fw)
+        dl_dzt += np.dot(self.Wxi_fw.weight.T, dL_dai_fw)
+        dl_dzt += np.dot(self.Wxo_fw.weight.T, dL_dao_fw)
+        dl_dzt += np.dot(self.Wxc_fw.weight.T, dL_dac_fw)
+
+        if self.bidirectional:
+            dl_dzt += np.dot(self.Wxf_rv.weight.T, dL_daf_rv)
+            dl_dzt += np.dot(self.Wxi_rv.weight.T, dL_dai_rv)
+            dl_dzt += np.dot(self.Wxo_rv.weight.T, dL_dao_rv)
+            dl_dzt += np.dot(self.Wxc_rv.weight.T, dL_dac_rv)
+
+        return dl_dzt
+
+    def update_weights(self, learn_rate, momentum):
+        self.learn_rate = learn_rate
+        self.momentum = momentum
+        self.update_forward_velocities()
+        if self.bidirectional:
+            self.update_reverse_velocities()
+
+        self.update_forward_weights()
+        if self.bidirectional:
+            self.update_reverse_weights()
+
+    def update_forward_velocities(self):
+        self.update_velocity(self.Wxi_fw)
+        self.update_velocity(self.Whi_fw)
+        self.update_velocity(self.Wci_fw)
+        self.update_velocity(self.Bi_fw)
+
+        self.update_velocity(self.Wxf_fw)
+        self.update_velocity(self.Whf_fw)
+        self.update_velocity(self.Wcf_fw)
+        self.update_velocity(self.Bf_fw)
+
+        self.update_velocity(self.Wxc_fw)
+        self.update_velocity(self.Whc_fw)
+        self.update_velocity(self.Bc_fw)
+
+        self.update_velocity(self.Wxo_fw)
+        self.update_velocity(self.Who_fw)
+        self.update_velocity(self.Bo_fw)
+
+        self.update_velocity(self.Wy_fw)
+        self.update_velocity(self.By)
+
+    def update_reverse_velocities(self):
+        self.update_velocity(self.Wxi_rv)
+        self.update_velocity(self.Whi_rv)
+        self.update_velocity(self.Wci_rv)
+        self.update_velocity(self.Bi_rv)
+
+        self.update_velocity(self.Wxf_rv)
+        self.update_velocity(self.Whf_rv)
+        self.update_velocity(self.Wcf_rv)
+        self.update_velocity(self.Bf_rv)
+
+        self.update_velocity(self.Wxc_rv)
+        self.update_velocity(self.Whc_rv)
+        self.update_velocity(self.Bc_rv)
+
+        self.update_velocity(self.Wxo_rv)
+        self.update_velocity(self.Who_rv)
+        self.update_velocity(self.Bo_rv)
+
+        self.update_velocity(self.Wy_rv)
+
+    def update_forward_weights(self):
+        self.update_weight(self.Wxi_fw)
+        self.update_weight(self.Whi_fw)
+        self.update_weight(self.Wci_fw)
+        self.update_weight(self.Bi_fw)
+
+        self.update_weight(self.Wxf_fw)
+        self.update_weight(self.Whf_fw)
+        self.update_weight(self.Wcf_fw)
+        self.update_weight(self.Bf_fw)
+
+        self.update_weight(self.Wxc_fw)
+        self.update_weight(self.Whc_fw)
+        self.update_weight(self.Bc_fw)
+
+        self.update_weight(self.Wxo_fw)
+        self.update_weight(self.Who_fw)
+        self.update_weight(self.Bo_fw)
+
+        self.update_weight(self.Wy_fw)
+        self.update_weight(self.By)
+
+    def update_reverse_weights(self):
+        self.update_weight(self.Wxi_rv)
+        self.update_weight(self.Whi_rv)
+        self.update_weight(self.Wci_rv)
+        self.update_weight(self.Bi_rv)
+
+        self.update_weight(self.Wxf_rv)
+        self.update_weight(self.Whf_rv)
+        self.update_weight(self.Wcf_rv)
+        self.update_weight(self.Bf_rv)
+
+        self.update_weight(self.Wxc_rv)
+        self.update_weight(self.Whc_rv)
+        self.update_weight(self.Bc_rv)
+
+        self.update_weight(self.Wxo_rv)
+        self.update_weight(self.Who_rv)
+        self.update_weight(self.Bo_rv)
+
+        self.update_weight(self.Wy_rv)
+
+    def update_velocity(self, weight):
+        weight.velocity = self.momentum * weight.velocity + self.learn_rate * weight.delta
+
+    def update_weight(self, weight):
+        weight.weight = weight.weight - weight.velocity
+        weight_max = np.max(weight.weight)
+        weight_min = np.min(weight.weight)
+
+        # weight = softmax(weight)
+        
+        # if weight_max > 3 :
+        #     print(f"weight max over threshold at {weight_max}")
+
+        # if weight_max < -3 :
+        #     print(f"weight min is under threshold at {weight_min}")

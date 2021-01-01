@@ -3,7 +3,7 @@ import numpy as np
 
 def sigmoid(x):
     # Sigmoid activation function: f(x) = 1 / (1 + e^(-x))
-    x = np.clip(x, -100.0, 100.0)
+    x = np.clip(x, -10.0, 10.0)
     sig = 1 / (1 + np.exp(-x))
     return sig
 

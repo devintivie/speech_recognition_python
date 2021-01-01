@@ -34,10 +34,21 @@ class neural_network:
             self.current_activation = ay
             self.all_activations.append(ay)
 
-        self.y_hat = self.current_activation
+        self.y_hat = softmax(ay)
         return self.y_hat
 
-    def train(self, data, all_y_trues, learn_rate, momentum, epochs, test_data = None):
+    def back_prop(self, all_ys_in_batch):
+        self.y = all_ys_in_batch.T
+        output = self.y_hat
+        delta_y = output - self.y
+
+        dL_dzt = self.layers[-1].layer_backprop(delta_y)
+        for layer in range(2, self.layer_count+1):
+            dL_dzt = self.layers[-layer].layer_backprop(dL_dzt)
+
+        self.update_weights()
+
+    def train(self, data, all_y_trues, learn_rate, momentum, epochs, penalty = 0.0, test_data = None):
         '''
         - data is a (n x 2) numpy array, n = # of samples in the dataset.
         - all_y_trues is a numpy array with n elements.
@@ -46,6 +57,7 @@ class neural_network:
         n = len(data)
         self.learn_rate = learn_rate
         self.momentum = momentum
+        self.penalty = penalty
 
         #data needs to stay sequential so do not randomize       
         for epoch in range(epochs):
@@ -61,7 +73,7 @@ class neural_network:
                 trues = np.argmax(sentence_trues.T, axis=0)
                 total_count += len(result)
                 correct_count += np.count_nonzero(result == trues)
-                self.backprop(sentence_trues)
+                self.back_prop(sentence_trues)
 
             percent_correct = correct_count/total_count*100
             print(f"percent correct = {percent_correct}")
@@ -72,6 +84,10 @@ class neural_network:
 
             # if test_data != None:
             #     self.test(test_data)
+
+    def update_weights(self):
+        for layer in self.layers:
+            layer.update_weights(self.learn_rate, self.momentum)
 
 
     

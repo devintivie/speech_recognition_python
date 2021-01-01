@@ -20,7 +20,7 @@ print('training and test data loaded')
 
 
 zscore_filename = 'timit_lstm_zscores.json'
-save_zscore = True
+save_zscore = False
 if save_zscore:
     input_means, input_vars = calculate_zscore_sent(training_inputs)
     save_zscores(zscore_filename, input_means, input_vars)
@@ -38,9 +38,13 @@ print('zscores processed')
 # network = neural_network([39, 40, 20, 40, 30, 61])
 network = neural_network()
 network.add_layer(39, 40, 30)
+network.add_layer(30, 30, 30)
+network.add_layer(30, 30, 30)
+network.add_layer(30, 30, 30)
 network.add_layer(30, 30, 61)
 learn_rate = 1e-4
 momentum = 0.85
+penalty = 0.35
 # batch_size = 100
 
 
@@ -49,7 +53,8 @@ test_data = list(zip(test_inputs, test_outputs))
 # input_data = [input_data[0]]
 # training_outputs = [training_outputs[0]]
 # network.save_file = 'timit_lstm_network_1e-4_85_40_40_40_40.json'
-network.train(input_data, training_outputs, learn_rate, momentum, 2, test_data)
+max_norm = 1
+network.train(input_data, training_outputs, learn_rate, momentum, 100, penalty, test_data)
 
 # i = 0
 # for t in test_data:
